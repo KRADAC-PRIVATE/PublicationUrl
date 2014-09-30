@@ -1,0 +1,142 @@
+#fondo {
+	margin:0px;
+	background-image:url('../imagenes/fondo.png');
+}
+
+#barra_sup {
+	background-image:url('../imagenes/barra.png');
+	text-align: center;
+	min-height: 37px;
+	box-shadow: 0px 0px 6px 1px #333;
+	position: relative;
+	font-family: Helvetica;
+	font-size: 13px;
+	font-weight: lighter;
+}
+
+#sesion {
+	color:#476D7E;
+	margin-right: 0%;
+	vertical-align: 9px;
+}
+
+#slogan {
+	vertical-align: 4px;
+	margin-right: 5%;
+	color:#E6E6E6;
+}
+
+#txt1 {
+	color: #476D7E;
+	vertical-align: 9px;
+}
+
+#enlace1 {
+	vertical-align: 9px;
+	text-decoration: none;
+	margin-right: 0.5%;
+	color:#E6E6E6;
+	text-align: left;
+}
+
+#enlace2 {
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+	width: 200px;
+	display: inline-block;
+	text-shadow: 1px 1px 1px rgb(79, 133, 156);
+}
+
+#publicar {
+	list-style-type: none;
+	display: inline-block;
+	margin: 0px;
+	vertical-align: 2px;
+	line-height: 11px;
+	padding: 4px;
+	}
+	
+#publicar.selected {
+	background-color: rgb(110, 171, 204);
+	}
+
+#datos.selected {
+	display: block;
+	}
+	
+#datos {
+	display: none;
+	position: fixed;
+	list-style-type: none;
+	padding: 4px;
+	width: 230px;
+	border: 1px solid rgba(0, 0, 0, 0.2);
+	background-color: rgb(242, 246, 248); 
+	margin: 6px 0px 0px -183px;
+	border-radius: 6px;
+	color: #333;
+    box-shadow: 0px 2px 8px 0px #D6D6D6;
+	}
+	
+	
+#datos:after {
+	position: absolute;
+	top: -6px;
+	left: 204px;
+	display: inline-block;
+	border-right: 6px solid transparent;
+	border-bottom: 6px solid rgb(242, 246, 248);
+	border-left: 6px solid transparent;
+	content: '';
+		}
+		
+.divisor {
+	height: 1px;
+	margin: 8px 1px;
+	background-color: #e5e5e5;
+	border-bottom: 1px solid #ffffff;
+	}
+	
+#barra_inf {
+	background-image: url('../imagenes/barra_inf.png');
+	min-height: 35px;
+	text-align: center;
+	width: 100%;
+	position: fixed;
+	bottom: 0;
+	font-family: Helvetica;
+	font-size: 13px;
+	font-weight: lighter;
+    border-top: 1px solid #A4CADB;
+    box-shadow: 0px 0px 1px 1px #476D7E;
+}
+	
+#derechos {
+	vertical-align: -10px;
+	color:#476D7E;
+}
+	
+#hora {
+	vertical-align: -10px;
+	color:#476D7E;
+	margin-right: 35%;
+}	
+	
+#txt2 {
+	vertical-align: -10px;
+	color:#476D7E;
+	margin-right: 0.1%;
+	
+}
+
+#recaptcha_image img { width: 230px; }
+
+#recaptcha_image {
+	width: 230px;
+	margin-bottom: 5px;
+}
+
+iframe[src="about:blank"] {
+	display:none;
+}
