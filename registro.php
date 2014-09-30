@@ -33,7 +33,7 @@
 								if (($hora>$ini_reg) && ($hora<$fin_reg)) {
 			
 									// Comprueba si aún hay espacio en la base de datos para registrar 
-									mysql_connect('localhost','root','')or die ('Ha fallado la conexi&oacute;n a la Base de Datos');
+									mysql_connect('172.16.17.214','frnoviyo','frnoviyo')or die ('Ha fallado la conexi&oacute;n a la Base de Datos');
 									mysql_select_db('scom_publi')or die ('Error al seleccionar la Base de Datos');
 									$consulta= mysql_query("SELECT * FROM maestra WHERE hora_pu=".$ult_pre);
 									//mysql_close;

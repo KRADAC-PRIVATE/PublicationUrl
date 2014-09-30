@@ -6,7 +6,7 @@
 	$txt=fgets($archivo);
 	fclose($archivo);
 	$urls=explode(chr(13),$txt);
-	mysql_connect('200.0.29.117','frnoviyo','frnoviyo')or die ('Ha fallado la conexi&oacute;n a la Base de Datos');
+	mysql_connect('172.16.17.214','frnoviyo','frnoviyo')or die ('Ha fallado la conexi&oacute;n a la Base de Datos');
 	mysql_select_db('scom_publi')or die ('Error al seleccionar la Base de Datos');
 	foreach ($urls as $url) {
 		$consulta= mysql_query("INSERT INTO `scom_publi`.`alterna` (`id`, `IP`, `URL`, `email`, `hora_pu`, `visitas`, `hora_re`) VALUES (NULL, '192.168.1.5', 'http://".$url."', 'registro@30s.com.ec', '".$ini_pre."', '0', '".$hora."');");
