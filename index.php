@@ -1,35 +1,41 @@
 <?php
-$hora = time(); //Hora actual - es un numero entero
+include ('dll/config.php');
+$hora = time() - 30600; //Hora actual - es un numero entero
 $ini_dia = $hora - $hora % 86400; //Inicio del dia
 $ini_reg = $ini_dia + (7 * 60 * 60); //Inicia el registro de URLs - 07:00
 $ini_pre = $ini_dia + (8 * 60 * 60); //Inicia la publicación de sitios - 08:00
 $ult_pre = $ini_dia + (24 * 60 * 60) - 30; //Última presentación - 23:59:30
 $URL = "http://www.cuestacomunicaciontotal.com/index.php?option=com_contact&view=contact&id=1&Itemid=87";
 if ($hora < $ini_pre) {
-    $URL = "http://172.16.17.214:8080/30url/en_espera.php"; //Pagina de espera hasta que inicie la publicacion
+    $URL = "http://localhost/30s.com.ec/en_espera.php"; //Pagina de espera hasta que inicie la publicacion
 } else {
-    mysql_connect('172.16.17.214', 'frnoviyo', 'frnoviyo')or die('Ha fallado la conexi&oacute;n a la Base de Datos');
-    mysql_select_db('scom_publi')or die('Error al seleccionar la Base de Datos');
-    $periodo = $hora - $hora % 30; //Determina el inicio del periodo de 30 segundos actual
-    $consulta = mysql_query("SELECT * FROM maestra WHERE hora_pu=" . $periodo);
-    if (mysql_num_rows($consulta) == 1) {
-        $fila = mysql_fetch_array($consulta);
-        $URL = $fila['URL'];  //"http://localhost/fondo/index.php";
-        $visitas = $fila['visitas'] + 1;
-        $consulta = mysql_query("UPDATE  `scom_publi`.`maestra` SET  `visitas` =  '" . $visitas . "' WHERE  `maestra`.`id` =" . $fila[id]);
+    if (!$mysqli = getConectionDb()) {
+        echo " Ha fallado la conexi&oacute;n a la Base de Datos.";
     } else {
-        $consulta = mysql_query("SELECT * FROM alterna WHERE hora_pu=" . $periodo);
-        if (mysql_num_rows($consulta) == 1) {
-            $fila = mysql_fetch_array($consulta);
+        $periodo = $hora - $hora % 30; //Determina el inicio del periodo de 30 segundos actual
+        $consulta = "SELECT * FROM urls WHERE fecha_hora_publicacion=" . $periodo; 
+        $result = $mysqli->query($consulta);
+        if ($result->num_rows == 1) {
+            $fila = $result->fetch_assoc(); //mysql_fetch_array($consulta);
             $URL = $fila['URL'];  //"http://localhost/fondo/index.php";
             $visitas = $fila['visitas'] + 1;
-            $consulta = mysql_query("UPDATE  `scom_publi`.`alterna` SET  `visitas` =  '" . $visitas . "' WHERE  `alterna`.`id` =" . $fila[id]);
+            $updateSql = "UPDATE  urls SET  `visitas` =  '" . $visitas . "' WHERE  `alterna`.`id` =" . $fila[id]; 
+            $stmt = $mysqli->prepare($updateSql);
+            $stmt->execute();
+        } else {
+            print "Nada que presentar a las " . date("H:i:s", $periodo) . " que equivale a " . $periodo;
+//        $consulta = mysql_query("SELECT * FROM alterna WHERE hora_pu=" . $periodo);
+//        if (mysql_num_rows($consulta) == 1) {
+//            $fila = mysql_fetch_array($consulta);
+//            $URL = $fila['URL'];  //"http://localhost/fondo/index.php";
+//            $visitas = $fila['visitas'] + 1;
+//            $consulta = mysql_query("UPDATE  `scom_publi`.`alterna` SET  `visitas` =  '" . $visitas . "' WHERE  `alterna`.`id` =" . $fila[id]);
+//        } else {
+//            print "Nada que presentar a las " . date("H:i:s", $periodo) . " que equivale a " . $periodo;
+//        }
         }
-        //else {
-        //	print "Nada que presentar a las ".date("H:i:s", $periodo)." que equivale a ".$periodo;
-        //}
+        $mysqli->close();
     }
-    mysql_close();
 }
 ?>
 
@@ -62,27 +68,29 @@ if ($hora < $ini_pre) {
                         <li><img src="./imagenes/flecha.png" alt="Publicar"></li>
                     </ul></a>
                 <ul id="datos">
-<?php
-if ($hora < $ini_reg) {
-    echo "<li style=\"float: left;padding-right: 9px;padding-left: 9px;padding-top: 8px; padding-bottom: 8px;\">Lo sentimos, pero el registro inicia a las 07:00</li>
+                    <?php
+                    if ($hora < $ini_reg) {
+                        echo "<li style=\"float: left;padding-right: 9px;padding-left: 9px;padding-top: 8px; padding-bottom: 8px;\">Lo sentimos, pero el registro inicia a las 07:00</li>
 							<li style=\"padding-right: 9px;padding-left: 9px;padding-top: 8px; padding-bottom: 8px;\">Por favor intente m&aacute;s tarde.</li>";
-} else {
-    mysql_connect('172.16.17.214', 'frnoviyo', 'frnoviyo')or die('Ha fallado la conexi&oacute;n a la Base de Datos');
-    mysql_select_db('scom_publi')or die('Error al seleccionar la Base de Datos');
-    $consulta = mysql_query("SELECT * FROM maestra WHERE hora_pu=" . $ult_pre);
-    mysql_close();
-    if (mysql_num_rows($consulta) > 0) {
-        echo "<li style=\"float: left;padding-right: 9px;padding-left: 9px;padding-top: 8px; padding-bottom: 8px;\">Lo sentimos, pero se han terminado los registros por hoy.</li>
+                    } else {
+                        if (!$mysqli = getConectionDb()) {
+                            echo " Ha fallado la conexi&oacute;n a la Base de Datos.";
+                        } else {
+                            $consulta = "SELECT * FROM alterna WHERE hora_pu=" . $ult_pre; //mysql_query("SELECT * FROM alterna WHERE hora_pu=" . $ult_pre);
+                            $result = $mysqli->query($consulta);
+                            $mysqli->close();
+                            if ($result->num_rows > 0) {
+                                echo "<li style=\"float: left;padding-right: 9px;padding-left: 9px;padding-top: 8px; padding-bottom: 8px;\">Lo sentimos, pero se han terminado los registros por hoy.</li>
 							<li style=\"padding-right: 9px;padding-left: 9px;padding-top: 8px; padding-bottom: 8px;\">Por favor intente mañana desde las 07:00</li>";
-    } else {
-        echo "<form name=\"registro\" action=\"registro.php\" onsubmit=\"return validacion()\" method=\"post\" style=\"margin-bottom: 5px;\">
+                            } else {
+                                echo "<form name=\"registro\" action=\"registro.php\" onsubmit=\"return validacion()\" method=\"post\" style=\"margin-bottom: 5px;\">
 								<li style=\"float: left;padding-left: 9px;padding-top: 8px; padding-bottom: 8px; margin-top: 2px;\">URL:</li>
 								<li style=\"float: left; padding-left: 11px; padding-top: 8px; padding-bottom: 8px;\"><input type=\"text\" name=\"url\" style=\"margin: 0px; color: grey; width: 165px;\" value=\"http://30s.com.ec\" onfocus=\"if(this.value=='http://30s.com.ec'){this.value=''; this.style.color='black';}\" onblur=\"if(this.value==''){this.value='http://30s.com.ec'; this.style.color='grey';} else if(this.value.indexOf('://')==-1){this.value='http://'+this.value;}\"></li>
 								<li style=\"float: left;padding-left: 9px;padding-top: 5px; padding-bottom: 1px; margin-top: 2px;\">Email:</li>
 								<li style=\"float: left; padding-left: 4px; padding-top: 5px; padding-bottom: 1px;\"><input type=\"text\" name=\"email\" style=\"margin: 0px;  color: grey; width: 165px;\" value=\"info@30s.com.ec\" onfocus=\"if(this.value=='info@30s.com.ec'){this.value=''; this.style.color='black';}\" onblur=\"if(this.value==''){this.value='info@30s.com.ec'; this.style.color='grey';}\"></li>
 								<li style=\"font-size: 10px; display: inline;\">Sólo para envío de estadísticas, luego será eliminado</li>
 								<li class=\"divisor\"></li>";
-        echo '<div id="recaptcha_widget" style="display:none">
+                                echo '<div id="recaptcha_widget" style="display:none">
 
 								<div id="recaptcha_image"></div>
    								<div class="recaptcha_only_if_incorrect_sol" style="color:red">Por favor intente otra vez</div>
@@ -104,9 +112,10 @@ if ($hora < $ini_reg) {
 								<textarea name="recaptcha_challenge_field" rows="3" cols="40"></textarea>
 								<input type="hidden" name="recaptcha_response_field" value="manual_challenge">
 								</noscript>';
-    }
-}
-?>
+                            }
+                        }
+                    }
+                    ?>
                 </ul>
             </div>
             <img src="./imagenes/separador.png" alt="separador" style="margin-right: 0.5%; vertical-align: -6px;">
