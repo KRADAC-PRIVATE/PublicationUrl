@@ -1,13 +1,13 @@
 <?php
 include ('dll/config.php');
-$hora = time() - 30600; //Hora actual - es un numero entero
+$hora = time(); //Hora actual - es un numero entero
 $ini_dia = $hora - $hora % 86400; //Inicio del dia
 $ini_reg = $ini_dia + (7 * 60 * 60); //Inicia el registro de URLs - 07:00
 $ini_pre = $ini_dia + (8 * 60 * 60); //Inicia la publicación de sitios - 08:00
 $ult_pre = $ini_dia + (24 * 60 * 60) - 30; //Última presentación - 23:59:30
 $URL = "http://www.cuestacomunicaciontotal.com/index.php?option=com_contact&view=contact&id=1&Itemid=87";
 if ($hora < $ini_pre) {
-    $URL = "http://localhost/30s.com.ec/en_espera.php"; //Pagina de espera hasta que inicie la publicacion
+    $URL = "http://localhost/PublicationUrl/en_espera.php"; //Pagina de espera hasta que inicie la publicacion
 } else {
     if (!$mysqli = getConectionDb()) {
         echo " Ha fallado la conexi&oacute;n a la Base de Datos.";
@@ -48,13 +48,14 @@ if ($hora < $ini_pre) {
         <link rel="stylesheet" type="text/css" href="./css/estilo.css">
         <script type="text/javascript">
             var RecaptchaOptions = {
+                lang:'es',
                 theme: 'custom',
                 custom_theme_widget: 'recaptcha_widget',
             };
         </script>
         <title> Un sitio diferente cada 30 segundos </title>
     </head>
-    <body id="fondo">
+    <body id="fondo" onload="Reloj()" >
         <div lang="es" id="barra_sup">
             <img src="./imagenes/logo.png" alt="30s.com.ec" style="vertical-align: 1px; margin-right: 0.5%;">
             <img src="./imagenes/separador.png" alt="separador" style="margin-right: 0.5%; vertical-align: -6px;">
@@ -76,7 +77,7 @@ if ($hora < $ini_pre) {
                         if (!$mysqli = getConectionDb()) {
                             echo " Ha fallado la conexi&oacute;n a la Base de Datos.";
                         } else {
-                            $consulta = "SELECT * FROM alterna WHERE hora_pu=" . $ult_pre; //mysql_query("SELECT * FROM alterna WHERE hora_pu=" . $ult_pre);
+                            $consulta = "SELECT * FROM urls WHERE fecha_hora_publicacion=" . $ult_pre; //mysql_query("SELECT * FROM alterna WHERE hora_pu=" . $ult_pre);
                             $result = $mysqli->query($consulta);
                             $mysqli->close();
                             if ($result->num_rows > 0) {
@@ -118,6 +119,24 @@ if ($hora < $ini_pre) {
                     ?>
                 </ul>
             </div>
+            <div style="display:inline-block; margin-right: 0.5%;">
+                <a href="#registrar"><ul id="registrar">
+                        <li><span style="color:#E6E6E6; text-shadow: 1px 1px 1px rgb(79, 133, 156);">Registrarse</span></li>
+                        <li><img src="./imagenes/flecha.png" alt="Registrar"></li>
+                    </ul></a>
+                <ul id="datosReg">               
+                    <form name="registroUser" action="registeruser.php" onsubmit="return validacion()" method="post" style="margin-bottom: 5px;">
+                        <li style="float: left;padding-left: 9px;padding-top: 5px; padding-bottom: 1px; margin-top: 2px;">Email:</li>
+                        <li style="float: left; padding-left: 4px; padding-top: 5px; padding-bottom: 1px;"><input type="text" name="email" style="margin: 0px;  color: grey; width: 165px;" value="info@30s.com.ec" onfocus="if(this.value=='info@30s.com.ec'){this.value=''; this.style.color='black';}" onblur="if(this.value==''){this.value='info@30s.com.ec'; this.style.color='grey';}"></li>
+                        <li style="float: left;padding-left: 9px;padding-top: 8px; padding-bottom: 1px; margin-top: 2px;">Clave:</li>
+                        <li style="float: left; padding-left: 4px; padding-top: 8px; padding-bottom: 1px;"><input type="password" name="pass" style="margin: 0px; color: grey; width: 165px;" value="clave" onfocus="if(this.value=='clave'){this.value=''; this.style.color='black';}" onblur="if(this.value==''){this.value='clave'; this.style.color='grey';}"></li>
+                        <li style="float: left;padding-left: 9px;padding-top: 5px; padding-bottom: 1px; margin-top: 2px;">Repetir:</li>
+                        <li style="float: left; padding-left: 4px; padding-top: 5px; padding-bottom: 1px;"><input type="password" name="repass" style="margin: 0px; color: grey; width: 165px;" value="reclave" onfocus="if(this.value=='reclave'){this.value=''; this.style.color='black';}" onblur="if(this.value==''){this.value='reclave'; this.style.color='grey';}"></li>
+                        <input type="submit" value="Registarse" name = "enviar">
+                    </form>
+                   
+                </ul>
+            </div>
             <img src="./imagenes/separador.png" alt="separador" style="margin-right: 0.5%; vertical-align: -6px;">
             <span id="sesion">Invitado</span>
             <img style="vertical-align: 1px;" src="./imagenes/invitado.png" alt="invitado">
@@ -128,27 +147,7 @@ if ($hora < $ini_pre) {
         </div>
         <div lang="es" id="barra_inf">
             <script type="text/javascript">
-                //Presentación de la hora del servidor
-                var currenttime = '<? print date("F d, Y H:i:s", time())?>'
-                var serverdate = new Date(currenttime);
-                //serverdate.setHours(serverdate.getHours()-1);
-
-                function padlength(what) {
-                    var output = (what.toString().length == 1) ? "0" + what : what;
-                    return output;
-                }
-
-                function displaytime() {
-                    serverdate.setSeconds(serverdate.getSeconds() + 1);
-                    var timestring = padlength(serverdate.getHours()) + ":" + padlength(serverdate.getMinutes()) + ":" + padlength(serverdate.getSeconds());
-                    document.getElementById("hora").innerHTML = timestring;
-                }
-
-                //window.onload=function(){
-                setInterval("displaytime()", 1000);
                 altura();
-                //}
-                // Script obtenido en http://www.javascriptkit.com/script/script2/servertime.shtml
             </script>
             <span id="txt2">Hora del servidor:</span>
             <span id="hora"></span>

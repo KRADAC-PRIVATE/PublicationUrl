@@ -21,19 +21,6 @@ function urlExist($url) {
     } else
         return true;
 }
-
-//$hora = time(); //Hora actual - es un numero entero
-//$ini_dia = $hora - $hora % 86400; //Inicio del dia
-//echo $hora."<br>";
-//echo Date('Y-m-d H:i:s', $hora)."<br>";
-//echo $ini_dia."<br>";
-//echo Date('Y-m-d H:i:s', $ini_dia)."<br>";
-//$ini_reg = $ini_dia + (7 * 60 * 60); //Inicia el registro de URLs - 07:00
-//echo Date('Y-m-d H:i:s', $ini_reg)."<br>";
-//$fin_reg = $ini_dia + (23.85 * 60 * 60); //Finaliza el registro de sitios - 23:51
-//$ult_pre = $ini_dia + (24 * 60 * 60) - 30; //Última presentación - 23:59:30
-
-
 if (!$mysqli = getConectionDb()) {
     echo " Ha fallado la conexi&oacute;n a la Base de Datos.";
 } else {
@@ -58,7 +45,7 @@ if (!$mysqli = getConectionDb()) {
                                 $fin_reg = $ini_dia + (23.85 * 60 * 60); //Finaliza el registro de sitios - 23:51
                                 $ult_pre = $ini_dia + (24 * 60 * 60) - 30; //Última presentación - 23:59:30
                                 // Comprueba si la hora de registro está entre las 7:00 y 23:51
-                                if (($hora > $ini_reg) && ($hora < $fin_reg)) {
+                                if (($horaActual > $ini_reg) && ($horaActual < $fin_reg)) {
 
                                     // Comprueba si aún hay espacio en la base de datos para registrar                                 
                                     $consulta = "SELECT * FROM urls WHERE fecha_hora_publicacion=" . $ult_pre;
@@ -75,9 +62,9 @@ if (!$mysqli = getConectionDb()) {
                                             $result = $mysqli->query($consulta);
                                             if ($result->num_rows < 5) {
                                                 //Inicia la secuencia de condiciones de comprobación de URL
-                                                $rep_dom = 6; //Repeticiones por dominio
-                                                $rep_url = 6; //Repeticiones de URL
-                                                $rep_con = 0; //Repeticiones continuas de url
+//                                                $rep_dom = 6; //Repeticiones por dominio
+//                                                $rep_url = 6; //Repeticiones de URL
+//                                                $rep_con = 0; //Repeticiones continuas de url
                                                 //Consulta para recuperar el ultimo registro con la fecha de publicacion de la url
                                                 $lastRegiter = "SELECT  fecha_hora_publicacion FROM webdb.urls where id_url = (SELECT MAX(id_url) FROM webdb.urls)";
                                                 $result = $mysqli->query($lastRegiter);
@@ -87,11 +74,12 @@ if (!$mysqli = getConectionDb()) {
                                                 //Convertimos la fecha recuperada que es un string al formato timestamp que es un entero de la fecha en segundos, 
                                                 //mediante la funcion strtotime() y y le sumamos 30 segundos
                                                 $intPublicDate = strtotime($lastDate) + 30;
-                                                $limitHour = (($publicDate - 30) - $horaActual) / 3600;
+                                                //obtenenmos la diferencia entre la hora de la ultima publicacion de la url y la hora actual 
+                                                $limitHour = (($intPublicDate - 30) - $horaActual) / 3600;                                              
                                                 //Convertimos la fecha que se encuentra en formato timestap a formato Date
-                                                $publicDate = date("Y-m-d H:i:s", $intPublicDate);
-                                                if ($limitHour > 6) {
-                                                    $consulta = "INSERT INTO webdb.urls (id_usuario, id_tipo, ip, url,fecha_hora_publicacion, correo) VALUES (1, 1, '" . $_SERVER['REMOTE_ADDR'] . "', '" . $url . "', '" . $publicDate . "','" . $email . "')";
+                                                //controlamos que se inserten urls solo si la diferencia de horas entre la ultima publicacion y la hora actual es menor a 6 horas
+                                                if ($limitHour < 6) {
+                                                    $consulta = "INSERT INTO webdb.urls (id_usuario, id_tipo, ip, url,fecha_hora_publicacion, correo) VALUES (1, 1, '" . $_SERVER['REMOTE_ADDR'] . "', '" . $url . "', '" . date("Y-m-d H:i:s", $intPublicDate) . "','" . $email . "')";
                                                     $stmt = $mysqli->prepare($consulta);
                                                     if ($stmt) {
                                                         $stmt->execute();
@@ -113,7 +101,7 @@ if (!$mysqli = getConectionDb()) {
                                     }
                                     mysql_close();
                                 } else {
-                                    echo "Fuera de la hora de presentación. Son las: " . date("H:i:s", $hora) . " que equivale a " . $hora;
+                                    echo "Fuera de la hora de presentación. Son las: " . date("H:i:s", $horaActual) . " que equivale a " . $horaActual;
                                 }
                             } else {
                                 echo "Mal URL o URL no existe!</br>";
